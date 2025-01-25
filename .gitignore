@@ -36,3 +36,5 @@ env/
 
 # Random
 /ignore
+node_modules/
+venv/
