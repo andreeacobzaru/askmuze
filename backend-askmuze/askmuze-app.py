@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -16,6 +16,11 @@ def get_data():
     response = {"message": "This is a message from the backend!"}
     print("Sending response:", response)
     return jsonify(response)
+
+@app.route('/api/data', methods=['POST'])
+def handle_data():
+    data = request.get_json()
+    return jsonify({'message': 'Data received', 'data': data}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
