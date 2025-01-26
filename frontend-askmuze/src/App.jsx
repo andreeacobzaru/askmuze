@@ -21,6 +21,26 @@ const fetchData = async () => {
   }
 };
 
+const sendDataToBackend = async () => {
+  const data = {
+    name: 'Andreea',
+    age: 25,
+    location: 'Toronto'
+  };
+
+  try {
+    const response = await axios.post('http://127.0.0.1:5000/api/data', data, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('Response from backend:', response.data);
+  } catch (error) {
+    console.error('Error sending data:', error);
+  }
+};
+
 const DecisionApp = () => {
   const [input, setInput] = useState("");
 
@@ -46,6 +66,7 @@ const DecisionApp = () => {
       {/* Main Content */}
       <div className="main-content">
         <button onClick={fetchData}>Fetch Data</button>
+        <button onClick={sendDataToBackend}>Send Data</button>
         {/* Header */}
         <h1 className="header-title">Good morning, Andreea</h1>
         <p className="header-subtitle">Let's make good decisions.</p>
