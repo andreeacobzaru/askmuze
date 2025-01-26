@@ -1,52 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./App.css";
-import { handleInputChange, handleSubmit } from "./functions";
+import { handleInputChange } from "./functions";
 import axios from "axios";
-
-const fetchData = async () => {
-  try {
-    const response = await axios.get('http://127.0.0.1:5000/api/data'); // Ensure the URL is correct
-    console.log('Fetched data:', response.data);
-  } catch (error) {
-    if (error.response) {
-      // The request was made and the server responded with a status code that falls out of the range of 2xx
-      console.error('Error response:', error.response.data);
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.error('Error request:', error.request);
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      console.error('Error message:', error.message);
-    }
-  }
-};
-
-const sendDataToBackend = async () => {
-  const data = {
-    name: 'Andreea',
-    age: 25,
-    location: 'Toronto'
-  };
-
-  try {
-    const response = await axios.post('http://127.0.0.1:5000/api/data', data, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    console.log('Response from backend:', response.data);
-  } catch (error) {
-    console.error('Error sending data:', error);
-  }
-};
 
 const DecisionApp = () => {
   const [input, setInput] = useState("");
+  const [fetchedMessage, setFetchedMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const sendDataToBackend = async (message) => {
+    setLoading(true);
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/api/data', { message }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Response from backend:', response.data);
+      return response.data.message;
+    } catch (error) {
+      console.error('Error sending data:', error);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmitAndFetch = async () => {
+    const responseMessage = await sendDataToBackend(input);
+    setFetchedMessage(responseMessage);
+  };
 
   return (
     <div className="app-container">
@@ -65,11 +49,22 @@ const DecisionApp = () => {
 
       {/* Main Content */}
       <div className="main-content">
-        <button onClick={fetchData}>Fetch Data</button>
-        <button onClick={sendDataToBackend}>Send Data</button>
         {/* Header */}
         <h1 className="header-title">Good morning, Andreea</h1>
         <p className="header-subtitle">Let's make good decisions.</p>
+
+        {/* Display Fetched Message */}
+        {fetchedMessage && (
+          <div className="fetched-message">
+            <pre>{fetchedMessage}</pre>
+          </div>
+        )}
+
+        {/* Display Answer */}
+        <div className="answer-section">
+          <h2>Answer:</h2>
+          <pre>{JSON.stringify(input, null, 2)}</pre>
+        </div>
 
         {/* Suggested Questions */}
         <div className="suggested-questions">
@@ -88,10 +83,13 @@ const DecisionApp = () => {
             placeholder="What are you deciding?"
             className="input-box"
           />
-          <button onClick={() => handleSubmit(input, setInput)} className="submit-button">
+          <button onClick={handleSubmitAndFetch} className="submit-button">
             Submit
           </button>
         </div>
+
+        {/* Loading Indicator */}
+        {loading && <div className="loading-indicator">Loading...</div>}
       </div>
     </div>
   );
