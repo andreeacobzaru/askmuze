@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
 import axios from "axios";
-import QuestionBox from './QuestionBox.jsx';
+import QuestionBox from './questionbox.jsx';
 
 const DecisionApp = () => {
   const [clarifyingQuestion, setClarifyingQuestion] = useState(null);
