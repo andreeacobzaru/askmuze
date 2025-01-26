@@ -5,31 +5,59 @@ import axios from "axios";
 
 const DecisionApp = () => {
   const [input, setInput] = useState("");
-  const [fetchedMessage, setFetchedMessage] = useState(null);
+  const [clarifyingQuestion, setClarifyingQuestion] = useState(null);
+  const [finalDecision, setFinalDecision] = useState(null);
+  const [threadId, setThreadId] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const sendDataToBackend = async (message) => {
+  const startChat = async (question) => {
     setLoading(true);
     try {
-      const response = await axios.post('http://127.0.0.1:5000/api/data', { message }, {
+      const response = await axios.post('http://127.0.0.1:5000/start_chat', { question }, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
 
       console.log('Response from backend:', response.data);
-      return response.data.message;
+      setThreadId(response.data.thread_id);
+      setClarifyingQuestion(response.data.clarifying_question);
     } catch (error) {
-      console.error('Error sending data:', error);
-      return null;
+      console.error('Error starting chat:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const continueChat = async (response) => {
+    setLoading(true);
+    try {
+      const res = await axios.post('http://127.0.0.1:5000/continue_chat', { thread_id: threadId, response }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Response from backend:', res.data);
+      if (res.data.final_decision) {
+        setFinalDecision(res.data.final_decision);
+      } else {
+        setClarifyingQuestion(res.data.clarifying_question);
+      }
+    } catch (error) {
+      console.error('Error continuing chat:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSubmitAndFetch = async () => {
-    const responseMessage = await sendDataToBackend(input);
-    setFetchedMessage(responseMessage);
+    if (!threadId) {
+      await startChat(input);
+    } else {
+      await continueChat(input);
+    }
+    setInput("");
   };
 
   return (
@@ -53,18 +81,19 @@ const DecisionApp = () => {
         <h1 className="header-title">Good morning, Andreea</h1>
         <p className="header-subtitle">Let's make good decisions.</p>
 
-        {/* Display Fetched Message */}
-        {fetchedMessage && (
-          <div className="fetched-message">
-            <pre>{fetchedMessage}</pre>
+        {/* Display Clarifying Question or Final Decision */}
+        {clarifyingQuestion && (
+          <div className="clarifying-question">
+            <h2>Clarifying Question:</h2>
+            <pre>{clarifyingQuestion}</pre>
           </div>
         )}
-
-        {/* Display Answer */}
-        <div className="answer-section">
-          <h2>Answer:</h2>
-          <pre>{JSON.stringify(input, null, 2)}</pre>
-        </div>
+        {finalDecision && (
+          <div className="final-decision">
+            <h2>Final Decision:</h2>
+            <pre>{finalDecision}</pre>
+          </div>
+        )}
 
         {/* Suggested Questions */}
         <div className="suggested-questions">
