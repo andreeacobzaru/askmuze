@@ -1,0 +1,178 @@
+body {
+  margin: 0;
+  font-family: "Press Start 2P", monospace;
+  scroll-behavior: smooth; /* Enable smooth scrolling for the page */
+}
+
+.question-box-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-screen {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #1e1e2f; /* Background color for the main screen */
+  color: #c1edcb; /* Light green text */
+  text-align: center;
+  padding: 20px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.main-screen h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.main-screen p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.input-area {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  max-width: 600px;
+  margin-top: 20px; /* Add margin to separate from the questions */
+}
+
+.input-area::before {
+  content: "> ";
+  color: #c1edcb;
+  font-size: 40px;
+  font-family: "Press Start 2P", monospace;
+  align-self: center;
+  animation: blink 1s step-end infinite;
+}
+
+.input-area input {
+  width: 100%;
+  max-width: 600px;
+  padding: 20px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: transparent;
+  color: #c1edcb;
+  font-size: 18px;
+  text-align: left;
+  outline: none;
+  font-family: "Press Start 2P", monospace;
+  caret-color: transparent; /* Hide the regular cursor */
+}
+
+.input-area input::placeholder {
+  color: #bbb;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.new-section {
+  width: 90%;
+  min-height: 20vh;
+  background-color: #1e1e2f; /* Same background as main screen */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+  overflow-y: auto; /* Allow scrolling if needed */
+}
+
+.question-list {
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.question {
+  padding: 10px 15px;
+  background-color: #2a2a3f;
+  color: #c1edcb;
+  border-radius: 8px;
+  font-size: 14px;
+  word-break: break-word;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #3c3c57;
+  color: #c1edcb;
+  font-family: "Press Start 2P", monospace;
+  width: fit-content;
+  margin: 12px;
+  align-self: flex-end; /* Align user questions to the left */
+  text-align: right;
+  float: right;
+}
+
+.ai-response {
+  padding: 10px 15px;
+  background-color: #4e4e73;
+  color: #c1edcb;
+  border-radius: 8px;
+  font-size: 14px;
+  word-break: break-word;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #4e4e73;
+  color: #c1edcb;
+  font-family: "Press Start 2P", monospace;
+  width: 99%;
+  margin: 12px;
+  align-self: flex-start; /* Align AI responses to the right */
+  float: left;
+}
+
+.final-decision {
+  padding: 10px 15px;
+  background-color: #ffcc00;
+  color: #000;
+  border-radius: 8px;
+  font-size: 14px;
+  word-break: break-word;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #ffcc00;
+  color: #000;
+  font-family: "Press Start 2P", monospace;
+  width: 99%;
+  margin: 12px;
+  align-self: center; /* Center the final decision */
+  text-align: center;
+}
+
+.last-ai-response {
+  padding: 10px 15px;
+  background-color: #ffcc00;
+  color: #000;
+  border-radius: 8px;
+  font-size: 14px;
+  word-break: break-word;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #ffcc00;
+  color: #000;
+  font-family: "Press Start 2P", monospace;
+  width: 99%;
+  margin: 12px;
+  align-self: center; /* Center the last AI response */
+  text-align: center;
+}

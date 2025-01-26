@@ -1,11 +1,14 @@
-
 /* General Styles */
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Press Start 2P", monospace;
   margin: 0;
   padding: 0;
   background-color: #1e1e2f;
   color: #fff;
+}
+
+p {
+  font-family: "Press Start 2P", monospace;
 }
 
 .app-container {
@@ -16,7 +19,7 @@ body {
 /* Sidebar Styles */
 .sidebar {
   width: 15%;
-  background-color: #2b2b40;
+  background-color: #1e1e2f;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -59,31 +62,38 @@ body {
   font-size: 2.5rem;
   margin-bottom: 10px;
   text-align: center;
+  font-family: "Press Start 2P", monospace;
 }
 
 .header-subtitle {
-  font-size: 1.2rem;
-  margin-bottom: 30px;
-  color: #C5198D;
+  color: #C1EDCB;
   text-align: center;
+  font-size: var(--typography-size-lg, 24px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: var(--typography-line-height-md, 32px); /* 133.333% */
+  letter-spacing: -0.5px;
 }
 
 /* Suggested Questions */
 .suggested-questions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 30px;
+  gap: 10px; /* Spacing between buttons */
+  margin-bottom: 20px; /* Reduced bottom margin */
+  padding: 20px; /* Reduced padding around the container */
+  justify-content: center;
 }
 
 .question-button {
   padding: 10px 20px;
   border: none;
   border-radius: 20px;
-  background-color: #3c3c57;
+  background-color: #1e1e2f;
+  border: 1px solid #C1EDCB;
   color: #fff;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-family: "Press Start 2P", monospace;
 }
 
 .question-button:hover {
@@ -104,19 +114,57 @@ body {
   border-radius: 5px;
   background-color: #3c3c57;
   color: #fff;
+  font-family: "Press Start 2P", monospace;
+}
+
+.input-header-section {
+  color: #C1EDCB;
+  font-family: "Press Start 2P", monospace;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 124%; /* 22.32px */
+  margin-left: 30px;
 }
 
 .submit-button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  background-color: #C5198D;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s;
+  color: #C1EDCB;
+  font-family: "Press Start 2P", monospace;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 124%;
 }
 
 .submit-button:hover {
   background-color: #da63b2;
+}
+
+/* Loading Indicator */
+.loading-indicator {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #C1EDCB;
+  margin-top: 20px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.loading-indicator::after {
+  content: '...';
+  animation: ellipsis 1.5s infinite;
+}
+
+@keyframes ellipsis {
+  0% {
+    content: '.';
+  }
+  33% {
+    content: '..';
+  }
+  66% {
+    content: '...';
+  }
+  100% {
+    content: '.';
+  }
 }
