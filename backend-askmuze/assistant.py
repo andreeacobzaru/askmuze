@@ -1,77 +1,86 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
 import time
 from openai import OpenAI
 from dotenv import load_dotenv
 
+app = Flask(__name__)
+CORS(app)
+
 load_dotenv()
-# Assistant ID
 ID = "asst_ezpSvOS3xkcC4FFCpumuMS47"
 openai_api_key = os.getenv('OPENAI_API_KEY')
 client = OpenAI(api_key=openai_api_key)
 
-username = "Layla"
-question = input("Hello " + username + ", what do you want to ask? ")
+# Store session data (temporary solution; use a database for production)
+user_sessions = {}
 
-# Create a new thread
-chat = client.beta.threads.create(
-    messages=[{"role": "user", "content": question}]
-)
+@app.route("/start_chat", methods=["POST"])
+def start_chat():
+    data = request.get_json()
+    user_question = data.get("question", "")
 
-# Run the assistant
-run = client.beta.threads.runs.create(thread_id=chat.id, assistant_id=ID)
-print(f"Run Created: {run.id}")
-
-# Wait for assistant to complete processing
-while run.status not in ["completed", "failed", "cancelled"]:
-    time.sleep(0.5)
-    run = client.beta.threads.runs.retrieve(thread_id=chat.id, run_id=run.id)
-    print(f"Run status: {run.status}")
-
-if run.status == "completed":
-    print("Run completed")
-else:
-    print(f"Run failed with status: {run.status}")
-    exit()
-
-# Process responses iteratively
-for i in range(3):
-    # Get the latest response
-    message_response = client.beta.threads.messages.list(thread_id=chat.id)
-    messages = message_response.data
-    latest_message = messages[0]
-    
-    # Extract the assistant's question
-    assistant_question = latest_message.content[0].text.value
-    print(f"Assistant: {assistant_question}")
-
-    # Get the user's response
-    user_response = input("Your Response: ")
-
-    # ✅ Corrected: Send user's response to the thread
-    client.beta.threads.messages.create(
-        thread_id=chat.id,
-        role="user",  # Specify the role
-        content=user_response  # Pass only the response content
+    # Create a new thread
+    chat_thread = client.beta.threads.create(
+        messages=[{"role": "user", "content": user_question}]
     )
 
-    # Create a new run to process the response
-    run = client.beta.threads.runs.create(thread_id=chat.id, assistant_id=ID)
-    print(f"Run Created: {run.id}")
+    # Run the assistant
+    run = client.beta.threads.runs.create(thread_id=chat_thread.id, assistant_id=ID)
 
-    # Wait for assistant to complete processing
+    # Wait for assistant's response
     while run.status not in ["completed", "failed", "cancelled"]:
         time.sleep(0.5)
-        run = client.beta.threads.runs.retrieve(thread_id=chat.id, run_id=run.id)
-        print(f"Run status: {run.status}")
+        run = client.beta.threads.runs.retrieve(thread_id=chat_thread.id, run_id=run.id)
 
-    if run.status == "failed":
-        print("Run failed, exiting.")
-        exit()
+    # Retrieve the first clarifying question
+    message_response = client.beta.threads.messages.list(thread_id=chat_thread.id)
+    messages = message_response.data
+    assistant_question = messages[0].content[0].text.value
 
-# Get final decision from assistant
-message_response = client.beta.threads.messages.list(thread_id=chat.id)
-messages = message_response.data
-latest_message = messages[0]
-final_response = latest_message.content[0].text.value
+    # Store session (to track conversation)
+    user_sessions[chat_thread.id] = {"question_count": 1}
 
-print(f"Final Decision: {final_response}")
+    return jsonify({"thread_id": chat_thread.id, "clarifying_question": assistant_question})
+
+
+@app.route("/continue_chat", methods=["POST"])
+def continue_chat():
+    data = request.get_json()
+    thread_id = data.get("thread_id")
+    user_response = data.get("response")
+
+    if thread_id not in user_sessions:
+        return jsonify({"error": "Invalid session"}), 400
+
+    # Send user's response to the thread
+    client.beta.threads.messages.create(
+        thread_id=thread_id,
+        role="user",
+        content=user_response
+    )
+
+    # Run the assistant again
+    run = client.beta.threads.runs.create(thread_id=thread_id, assistant_id=ID)
+
+    # Wait for assistant to process the response
+    while run.status not in ["completed", "failed", "cancelled"]:
+        time.sleep(0.5)
+        run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
+
+    # Retrieve the next message from assistant
+    message_response = client.beta.threads.messages.list(thread_id=thread_id)
+    messages = message_response.data
+    assistant_reply = messages[0].content[0].text.value
+
+    # Increment question count
+    user_sessions[thread_id]["question_count"] += 1
+
+    if user_sessions[thread_id]["question_count"] >= 3:
+        return jsonify({"final_decision": assistant_reply})
+    else:
+        return jsonify({"clarifying_question": assistant_reply})
+
+if __name__ == "__main__":
+    app.run(debug=True)
